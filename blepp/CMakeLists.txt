@@ -1,0 +1,20 @@
+#
+#
+#
+file(GLOB HEADERS "${PROJECT_SOURCE_DIR}/include/blepp/*.h")
+##message("HEADERS: ${HEADERS}")
+file(GLOB SRC "*.cc")
+
+
+add_library(${PROJECT_NAME} SHARED ${SRC} )
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADERS}")
+ 
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 5)
+ 
+install(TARGETS ${PROJECT_NAME}
+  # IMPORTANT: Add the blepp library to the "export-set"
+  EXPORT LibBleppTargets
+  RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
+  LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
+  PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/${PROJECT_NAME}" COMPONENT dev)
+

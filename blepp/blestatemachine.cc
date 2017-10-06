@@ -466,6 +466,10 @@ namespace BLEPP
 	////////////////////////////////////////////////////////////////////////////////
 	//
 	// The state machine itself!
+	// write_and_process_next(): For nonblocking connection, this can be used to move the
+
+	// FSM to Idle state after the connection completes (user will use select()on gatt.socket())
+	// The name seems to be a bit of a misnomer!
 	void BLEGATTStateMachine::write_and_process_next()
 	{
 		ENTER();
@@ -510,6 +514,7 @@ namespace BLEPP
 		}
 	}
 
+	// Use this only from Idle state.
 	void BLEGATTStateMachine::read_and_process_next()
 	{
 		ENTER();
@@ -682,6 +687,7 @@ namespace BLEPP
 							//Maybe ? Indicates that the last one has been read.
 							reset();
 							cb_get_client_characteristic_configuration();
+                            reset();
 						}
 						else
 							unexpected_error(r);

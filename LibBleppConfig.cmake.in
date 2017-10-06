@@ -1,0 +1,18 @@
+# - Config file for the LibBlepp package
+# It defines the following variables
+#  LIBBLEPP_INCLUDE_DIRS - include directories for LibBlepp
+#  LIBBLEPP_LIBRARIES    - libraries to link against
+#  LIBBLEPP_LIBRARY_DIRS - library directories
+#  LIBBLEPP_EXECUTABLE   - the bar executable
+
+# Compute paths
+get_filename_component(LIBBLEPP_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(LIBBLEPP_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+set(LIBBLEPP_LIBRARY_DIRS "@CONF_LIBRARY_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include("${LIBBLEPP_CMAKE_DIR}/LibBleppTargets.cmake")
+
+# These are IMPORTED targets created by LibBleppTargets.cmake
+set(LIBBLEPP_LIBRARIES "@CONF_LIBNAME@")
+set(LIBBLEPP_EXECUTABLE examples)

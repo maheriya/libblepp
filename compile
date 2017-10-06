@@ -1,0 +1,32 @@
+#!/bin/csh -f
+
+alias chkst 'if ($status != 0) then \
+  echo "Failure!"; \
+  exit(1); \
+endif'
+
+
+#### Following can be used if compile were in parent directory
+set curdir = `pwd`
+set cdir = $curdir:t
+echo $cdir
+if ($cdir != "build") then
+  cd build
+endif
+
+set prefix = "/usr/local/libblepp"
+set cmd = ( cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=$prefix .. )
+echo $cmd
+$cmd
+chkst
+make -j4
+chkst
+
+INSTALL:
+##--sudo make install
+sudo checkinstall --nodoc --strip=yes --backup=no \
+        --fstrans=no \
+        --default \
+        --pkgname=libblepp \
+        --pkgversion=1.0 \
+

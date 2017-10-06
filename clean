@@ -1,0 +1,12 @@
+#!/bin/csh -f
+set curdir = `pwd`
+set cdir = $curdir:t
+echo $cdir
+if ($cdir != "build") then
+  cd build
+endif
+
+
+rm -rf CMakeCache.txt CMakeFiles/ cmake_install.cmake libble++.so libble++.so.5 Makefile
+rm -rf description-pak  examples/
+rm -rf blepp/  install_manifest.txt  libblepp_1.0-1_amd64.deb  LibBleppConfig.cmake  LibBleppConfigVersion.cmake  LibBleppTargets.cmake
