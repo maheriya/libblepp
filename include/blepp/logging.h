@@ -75,9 +75,9 @@ namespace BLEPP{
 	}
 
 
-	#define LOGVAR(Y, X) LOG(Y,  #X << " = " << log_no_uint8(X))
-	#define LOGVARHEX(Y, X) LOG(Y,  #X << " = " << std::hex <<log_no_uint8(X) <<std::dec)
-	#define LOG(X, Y) do{\
+	#define BLEPPLOGVAR(Y, X) BLEPPLOG(Y,  #X << " = " << log_no_uint8(X))
+	#define BLEPPLOGVARHEX(Y, X) BLEPPLOG(Y,  #X << " = " << std::hex <<log_no_uint8(X) <<std::dec)
+	#define BLEPPLOG(X, Y) do{\
 		if(X <= BLEPP::log_level)\
 			log_line_header(X, __FUNCTION__, __LINE__, __FILE__) << Y << std::endl;\
 	}while(0)

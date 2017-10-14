@@ -102,7 +102,7 @@ namespace BLEPP
 	HCIScanner::Error::Error(const string& why)
 	:std::runtime_error(why)
 	{	
-		LOG(LogLevels::Error, why);	
+		BLEPPLOG(LogLevels::Error, why);	
 	}
 
 	HCIScanner::IOError::IOError(const string& why, int errno_val)
@@ -161,7 +161,7 @@ namespace BLEPP
 		ENTER();
 		if(running)
 		{
-			LOG(Trace, "Scanner is already running");
+			BLEPPLOG(Trace, "Scanner is already running");
 			return;
 		}
 
@@ -193,8 +193,8 @@ namespace BLEPP
 				//try turning it off and trying again. This bad state would happen, if, to pick
 				//like a *totally* hypothetical example, the program segged-out during scanning
 				//and so never cleaned up properly.
-				LOG(LogLevels::Warning, "Received I/O error while setting scan parameters.");
-				LOG(LogLevels::Warning, "Switching off HCI scanner");
+				BLEPPLOG(LogLevels::Warning, "Received I/O error while setting scan parameters.");
+				BLEPPLOG(LogLevels::Warning, "Switching off HCI scanner");
 				err = hci_le_set_scan_enable(hci_fd, 0x00, 0x00, 10000);
 				if(err < 0)
 					throw IOError("Error disabling scan:", errno);
@@ -204,13 +204,13 @@ namespace BLEPP
 				if(err < 0)
 					throw IOError("Error disabling scan:", errno);
 				else
-					LOG(LogLevels::Warning, "Setting scan parameters worked this time.");
+					BLEPPLOG(LogLevels::Warning, "Setting scan parameters worked this time.");
 
 
 			}
 		}
 
-		LOG(LogLevels::Info, "Starting scanner");
+		BLEPPLOG(LogLevels::Info, "Starting scanner");
 		scanned_devices.clear();
 
 		//Removal of duplicates done on the adapter itself
@@ -248,7 +248,7 @@ namespace BLEPP
 			return;
 		}
 
-		LOG(LogLevels::Info, "Cleaning up HCI scanner");
+		BLEPPLOG(LogLevels::Info, "Cleaning up HCI scanner");
 		int err = hci_le_set_scan_enable(hci_fd, 0x00, 0x00, 10000);
 
 		if(err < 0)
@@ -329,7 +329,7 @@ namespace BLEPP
 				if(r.second)
 					filtered.emplace_back(move(a));
 				else
-					LOG(Debug, "Entry " << a.address << " " << static_cast<int>(a.type) << " found already");
+					BLEPPLOG(Debug, "Entry " << a.address << " " << static_cast<int>(a.type) << " found already");
 			}
 
 			return filtered;
@@ -461,11 +461,11 @@ namespace BLEPP
 	vector<AdvertisingResponse> HCIScanner::parse_packet(const vector<uint8_t>& p)
 	{
 		Span  packet(p);
-		LOG(Debug, to_hex(p));
+		BLEPPLOG(Debug, to_hex(p));
 
 		if(packet.size() < 1)
 		{
-			LOG(LogLevels::Error, "Empty packet received");
+			BLEPPLOG(LogLevels::Error, "Empty packet received");
 			return {};
 		}
 
@@ -474,12 +474,12 @@ namespace BLEPP
 
 		if(packet_id == HCI_EVENT_PKT)
 		{
-			LOG(Debug, "Event packet received");
+			BLEPPLOG(Debug, "Event packet received");
 			return parse_event_packet(packet);
 		}
 		else
 		{
-			LOG(LogLevels::Error, "Unknown HCI packet received");
+			BLEPPLOG(LogLevels::Error, "Unknown HCI packet received");
 			throw HCIError("Unknown HCI packet received");
 		}
 	}
@@ -498,15 +498,15 @@ namespace BLEPP
 		
 		if(event_code == EVT_LE_META_EVENT)
 		{
-			LOG(Info, "event_code = 0x" << hex << (int)event_code << ": Meta event" << dec);
-			LOGVAR(Info, length);
+			BLEPPLOG(Info, "event_code = 0x" << hex << (int)event_code << ": Meta event" << dec);
+			BLEPPLOGVAR(Info, length);
 
 			return parse_le_meta_event(packet);
 		}
 		else
 		{
-			LOG(Info, "event_code = 0x" << hex << (int)event_code << dec);
-			LOGVAR(Info, length);
+			BLEPPLOG(Info, "event_code = 0x" << hex << (int)event_code << dec);
+			BLEPPLOGVAR(Info, length);
 			throw HCIScanner::HCIError("Unexpected HCI event packet");
 		}
 	}
@@ -518,12 +518,12 @@ namespace BLEPP
 
 		if(subevent_code == 0x02) // see big blob of comments above
 		{
-			LOG(Info, "subevent_code = 0x02: LE Advertising Report Event");
+			BLEPPLOG(Info, "subevent_code = 0x02: LE Advertising Report Event");
 			return parse_le_meta_event_advertisement(packet);
 		}
 		else
 		{
-			LOGVAR(Info, subevent_code);
+			BLEPPLOGVAR(Info, subevent_code);
 			return {};
 		}
 	}
@@ -533,33 +533,33 @@ namespace BLEPP
 		vector<AdvertisingResponse> ret;
 
 		uint8_t num_reports = packet.pop_front();
-		LOGVAR(Info, num_reports);
+		BLEPPLOGVAR(Info, num_reports);
 
 		for(int i=0; i < num_reports; i++)
 		{
 			LeAdvertisingEventType event_type = static_cast<LeAdvertisingEventType>(packet.pop_front());
 
 			if(event_type == LeAdvertisingEventType::ADV_IND)
-				LOG(Info, "event_type = 0x00 ADV_IND, Connectable undirected advertising");
+				BLEPPLOG(Info, "event_type = 0x00 ADV_IND, Connectable undirected advertising");
 			else if(event_type == LeAdvertisingEventType::ADV_DIRECT_IND)
-				LOG(Info, "event_type = 0x01 ADV_DIRECT_IND, Connectable directed advertising");
+				BLEPPLOG(Info, "event_type = 0x01 ADV_DIRECT_IND, Connectable directed advertising");
 			else if(event_type == LeAdvertisingEventType::ADV_SCAN_IND)
-				LOG(Info, "event_type = 0x02 ADV_SCAN_IND, Scannable undirected advertising");
+				BLEPPLOG(Info, "event_type = 0x02 ADV_SCAN_IND, Scannable undirected advertising");
 			else if(event_type == LeAdvertisingEventType::ADV_NONCONN_IND)
-				LOG(Info, "event_type = 0x03 ADV_NONCONN_IND, Non connectable undirected advertising");
+				BLEPPLOG(Info, "event_type = 0x03 ADV_NONCONN_IND, Non connectable undirected advertising");
 			else if(event_type == LeAdvertisingEventType::SCAN_RSP)
-				LOG(Info, "event_type = 0x04 SCAN_RSP, Scan response");
+				BLEPPLOG(Info, "event_type = 0x04 SCAN_RSP, Scan response");
 			else
-				LOG(Warning, "event_type = 0x" << hex << (int)event_type << dec << ", unknown");
+				BLEPPLOG(Warning, "event_type = 0x" << hex << (int)event_type << dec << ", unknown");
 			
 			uint8_t address_type = packet.pop_front();
 
 			if(address_type == 0)
-				LOG(Info, "Address type = 0: Public device address");
+				BLEPPLOG(Info, "Address type = 0: Public device address");
 			else if(address_type == 1)
-				LOG(Info, "Address type = 0: Random device address");
+				BLEPPLOG(Info, "Address type = 0: Random device address");
 			else
-				LOG(Info, "Address type = 0x" << to_hex(address_type) << ": unknown");
+				BLEPPLOG(Info, "Address type = 0x" << to_hex(address_type) << ": unknown");
 
 
 			string address;
@@ -574,24 +574,24 @@ namespace BLEPP
 			}
 
 
-			LOGVAR(Info, address);
+			BLEPPLOGVAR(Info, address);
 
 			uint8_t length = packet.pop_front();
-			LOGVAR(Info, length);
+			BLEPPLOGVAR(Info, length);
 			
 
 			Span data = packet.pop_front(length);
 
-			LOG(Debug, "Data = " << to_hex(data));
+			BLEPPLOG(Debug, "Data = " << to_hex(data));
 
 			int8_t rssi = packet.pop_front();
 
 			if(rssi == 127)
-				LOG(Info, "RSSI = 127: unavailable");
+				BLEPPLOG(Info, "RSSI = 127: unavailable");
 			else if(rssi <= 20)
-				LOG(Info, "RSSI = " << (int) rssi << " dBm");
+				BLEPPLOG(Info, "RSSI = " << (int) rssi << " dBm");
 			else
-				LOG(Info, "RSSI = " << to_hex((uint8_t)rssi) << " unknown");
+				BLEPPLOG(Info, "RSSI = " << to_hex((uint8_t)rssi) << " unknown");
 
 			try{
 				AdvertisingResponse rsp;
@@ -601,37 +601,37 @@ namespace BLEPP
 
 				while(data.size() > 0)
 				{
-					LOGVAR(Debug, data.size());
-					LOG(Debug, "Packet = " << to_hex(data));
+					BLEPPLOGVAR(Debug, data.size());
+					BLEPPLOG(Debug, "Packet = " << to_hex(data));
 					//Format is length, type, crap
 					int length = data.pop_front();
 					
-					LOGVAR(Debug, length);
+					BLEPPLOGVAR(Debug, length);
 
 					Span chunk = data.pop_front(length);
 					uint8_t type = chunk[0];
-					LOGVAR(Debug, type);
+					BLEPPLOGVAR(Debug, type);
 
 					if(type == GAP::flags)
 					{
 						rsp.flags = AdvertisingResponse::Flags({chunk.begin(), chunk.end()});
 
-						LOG(Info, "Flags = " << to_hex(rsp.flags->flag_data));
+						BLEPPLOG(Info, "Flags = " << to_hex(rsp.flags->flag_data));
 
 						if(rsp.flags->LE_limited_discoverable)
-							LOG(Info, "        LE limited discoverable");
+							BLEPPLOG(Info, "        LE limited discoverable");
 
 						if(rsp.flags->LE_general_discoverable)
-							LOG(Info, "        LE general discoverable");
+							BLEPPLOG(Info, "        LE general discoverable");
 
 						if(rsp.flags->BR_EDR_unsupported)
-							LOG(Info, "        BR/EDR unsupported");
+							BLEPPLOG(Info, "        BR/EDR unsupported");
 
 						if(rsp.flags->simultaneous_LE_BR_host)
-							LOG(Info, "        simultaneous LE BR host");
+							BLEPPLOG(Info, "        simultaneous LE BR host");
 
 						if(rsp.flags->simultaneous_LE_BR_controller)
-							LOG(Info, "        simultaneous LE BR controller");
+							BLEPPLOG(Info, "        simultaneous LE BR controller");
 					}
 					else if(type == GAP::incomplete_list_of_16_bit_UUIDs || type == GAP::complete_list_of_16_bit_UUIDs)
 					{
@@ -660,29 +660,29 @@ namespace BLEPP
 						n.name = string(chunk.begin(), chunk.end());
 						rsp.local_name = n;
 
-						LOG(Info, "Name (" << (n.complete?"complete":"incomplete") << "): " << n.name);
+						BLEPPLOG(Info, "Name (" << (n.complete?"complete":"incomplete") << "): " << n.name);
 					}
 					else if(type == GAP::manufacturer_data)
 					{
 						chunk.pop_front();
 						rsp.manufacturer_specific_data.push_back({chunk.begin(), chunk.end()});
-						LOG(Info, "Manufacturer data: " << to_hex(chunk));
+						BLEPPLOG(Info, "Manufacturer data: " << to_hex(chunk));
 					}
 					else
 					{
 						rsp.unparsed_data_with_types.push_back({chunk.begin(), chunk.end()});
 
-						LOG(Info, "Unparsed chunk " << to_hex(chunk));
+						BLEPPLOG(Info, "Unparsed chunk " << to_hex(chunk));
 					}
 				}
 
 				if(rsp.UUIDs.size() > 0)
 				{
-					LOG(Info, "UUIDs (128 bit " << (rsp.uuid_128_bit_complete?"complete":"incomplete")
+					BLEPPLOG(Info, "UUIDs (128 bit " << (rsp.uuid_128_bit_complete?"complete":"incomplete")
 						  << ", 16 bit " << (rsp.uuid_16_bit_complete?"complete":"incomplete") << " ):");
 
 					for(const auto& uuid: rsp.UUIDs)
-						LOG(Info, "    " << to_str(uuid));
+						BLEPPLOG(Info, "    " << to_str(uuid));
 				}
 
 				ret.push_back(rsp);
@@ -691,7 +691,7 @@ namespace BLEPP
 			}
 			catch(out_of_range r)
 			{
-				LOG(LogLevels::Error, "Corrupted data sent by device " << address);
+				BLEPPLOG(LogLevels::Error, "Corrupted data sent by device " << address);
 			}
 		}
 

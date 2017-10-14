@@ -55,7 +55,7 @@ namespace BLEPP
 			template<class C>
 			void error(const std::string& s) const
 			{
-				LOG(Error, s);
+				BLEPPLOG(Error, s);
 				throw C(s);
 			}
 

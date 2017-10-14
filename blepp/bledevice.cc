@@ -53,11 +53,11 @@ namespace BLEPP
 	{
 		if(fd < 0)
 		{
-			LOG(Info, "Error on line " << line << "( " << __FILE__ << "): " <<strerror(errno));
+			BLEPPLOG(Info, "Error on line " << line << "( " << __FILE__ << "): " <<strerror(errno));
 			throw C();
 		}
 		else
-			LOG(Debug, "System call on " << line << "( " << __FILE__ << "): " << strerror(errno) << " ret = " << fd);
+			BLEPPLOG(Debug, "System call on " << line << "( " << __FILE__ << "): " << strerror(errno) << " ret = " << fd);
 	}
 
 	void BLEDevice::test_pdu(int len)
@@ -222,13 +222,13 @@ namespace BLEPP
 		ret = getsockopt(sock, SOL_L2CAP, L2CAP_OPTIONS, &options, &len);
 		test(ret);
 
-		LOGVAR(options.omtu);
-		LOGVAR(options.imtu);
-		LOGVAR(options.flush_to);
-		LOGVAR(options.mode);
-		LOGVAR(options.fcs);
-		LOGVAR(options.max_tx);
-		LOGVAR(options.txwin_size);
+		BLEPPLOGVAR(options.omtu);
+		BLEPPLOGVAR(options.imtu);
+		BLEPPLOGVAR(options.flush_to);
+		BLEPPLOGVAR(options.mode);
+		BLEPPLOGVAR(options.fcs);
+		BLEPPLOGVAR(options.max_tx);
+		BLEPPLOGVAR(options.txwin_size);
 
 
 		
@@ -246,13 +246,13 @@ namespace BLEPP
 		ret = getsockopt(sock, SOL_L2CAP, L2CAP_OPTIONS, &options, &len);
 		test(ret);
 
-		LOGVAR(options.omtu);
-		LOGVAR(options.imtu);
-		LOGVAR(options.flush_to);
-		LOGVAR(options.mode);
-		LOGVAR(options.fcs);
-		LOGVAR(options.max_tx);
-		LOGVAR(options.txwin_size);
+		BLEPPLOGVAR(options.omtu);
+		BLEPPLOGVAR(options.imtu);
+		BLEPPLOGVAR(options.flush_to);
+		BLEPPLOGVAR(options.mode);
+		BLEPPLOGVAR(options.fcs);
+		BLEPPLOGVAR(options.max_tx);
+		BLEPPLOGVAR(options.txwin_size);
 	*/
 		buf.resize(ATT_DEFAULT_MTU);
 	}
