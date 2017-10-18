@@ -1,6 +1,7 @@
 *.sw?
 *.o
 core
+build/
 bluez-tools/
 prog
 lescan
