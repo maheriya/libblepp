@@ -14,7 +14,7 @@ if ($cdir != "build") then
   cd build
 endif
 
-set prefix = "/usr/local/libblepp"
+set prefix = "/usr/local"
 set cmd = ( cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=$prefix .. )
 echo $cmd
 $cmd
